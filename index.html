@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Circular Timer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .timer-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+    }
+    svg {
+      transform: rotate(-90deg);
+    }
+    .time-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+    }
+    .picker {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      font-size: 1.5rem;
+    }
+    .slot {
+      height: 100px;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      width: 60px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .slot div {
+      height: 50px;
+      line-height: 50px;
+      scroll-snap-align: center;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-container">
+    <svg width="300" height="300">
+      <circle cx="150" cy="150" r="140" stroke="#eee" stroke-width="20" fill="none" />
+      <circle id="progress" cx="150" cy="150" r="140" stroke="#3aa" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="880" stroke-dashoffset="0" />
+    </svg>
+    <div class="time-display" id="display">00:00:00</div>
+  </div>
+
+  <div class="picker">
+    <div class="slot" id="hours"></div>
+    <div class="slot" id="minutes"></div>
+    <div class="slot" id="seconds"></div>
+  </div>
+
+  <button id="startBtn">Start</button>
+  <button id="stopBtn">Stop</button>
+  <button id="resetBtn">Reset</button>
+
+  <script>
+    const hoursSlot = document.getElementById('hours');
+    const minutesSlot = document.getElementById('minutes');
+    const secondsSlot = document.getElementById('seconds');
+
+    for (let i = 0; i <= 23; i++) hoursSlot.innerHTML += `<div>${String(i).padStart(2,'0')}</div>`;
+    for (let i = 0; i <= 59; i++) minutesSlot.innerHTML += `<div>${String(i).padStart(2,'0')}</div>`;
+    for (let i = 0; i <= 59; i++) secondsSlot.innerHTML += `<div>${String(i).padStart(2,'0')}</div>`;
+
+    const getSlotValue = (slot) => {
+      const index = Math.round(slot.scrollTop / 50);
+      return Number(slot.children[index].innerText);
+    };
+
+    const progress = document.getElementById('progress');
+    const display = document.getElementById('display');
+    const circumference = 2 * Math.PI * 140;
+    progress.style.strokeDasharray = circumference;
+
+    let timer = null;
+    let remaining = 0;
+    let original = 0;
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      if (timer) return;
+
+      const h = getSlotValue(hoursSlot);
+      const m = getSlotValue(minutesSlot);
+      const s = getSlotValue(secondsSlot);
+      remaining = h * 3600 + m * 60 + s;
+      original = remaining;
+
+      if (remaining <= 0) return;
+
+      timer = setInterval(() => {
+        remaining--;
+        const hh = String(Math.floor(remaining / 3600)).padStart(2, '0');
+        const mm = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+        const ss = String(remaining % 60).padStart(2, '0');
+        display.textContent = `${hh}:${mm}:${ss}`;
+
+        const ratio = remaining / original;
+        progress.style.strokeDashoffset = circumference * (1 - ratio);
+
+        if (remaining <= 0) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }, 1000);
+    });
+
+    document.getElementById('stopBtn').addEventListener('click', () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      remaining = original;
+      const hh = String(Math.floor(remaining / 3600)).padStart(2, '0');
+      const mm = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+      const ss = String(remaining % 60).padStart(2, '0');
+      display.textContent = `${hh}:${mm}:${ss}`;
+      progress.style.strokeDashoffset = 0;
+    });
+    });
+  </script>
+</body>
+</html>
