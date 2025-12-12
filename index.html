@@ -57,7 +57,6 @@ button.start, button.stop, button.reset {
   padding: 10px 20px;
   font-size: 18px;
 }
-
 </style>
 </head>
 <body>
@@ -98,8 +97,8 @@ button.start, button.stop, button.reset {
 </div>
 
 <script>
-let totalTime = 0; 
-let remaining = 0; 
+let totalTime = 0;
+let remaining = 0;
 let timerInterval = null;
 
 // Canvas
@@ -107,86 +106,4 @@ const canvas = document.getElementById('circle');
 const ctx = canvas.getContext('2d');
 const radius = 130;
 
-// 円を描画する関数
-function drawCircle(rate) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.beginPath();
-  ctx.lineWidth = 15;
-  ctx.strokeStyle = "#ddd";
-  ctx.arc(150, 150, radius, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.lineWidth = 15;
-  ctx.strokeStyle = "#007AFF"; // iOSブルー
-  ctx.lineCap = "round";
-  ctx.arc(150, 150, radius, -Math.PI / 2, (Math.PI * 2) * rate - Math.PI / 2);
-  ctx.stroke();
-}
-
-// スロットの値変更
-function changeValue(type, delta) {
-  const input = {
-    h: document.getElementById("hours"),
-    m: document.getElementById("minutes"),
-    s: document.getElementById("seconds")
-  }[type];
-
-  let val = Number(input.value) + delta;
-  const max = Number(input.max);
-  const min = Number(input.min);
-
-  if (val > max) val = max;
-  if (val < min) val = min;
-
-  input.value = val;
-}
-
-// タイマー開始
-function startTimer() {
-  if (timerInterval) return;
-
-  const h = Number(document.getElementById("hours").value);
-  const m = Number(document.getElementById("minutes").value);
-  const s = Number(document.getElementById("seconds").value);
-
-  totalTime = h * 3600 + m * 60 + s;
-  remaining = totalTime;
-
-  if (remaining <= 0) return;
-
-  timerInterval = setInterval(() => {
-    remaining--;
-
-    drawCircle(remaining / totalTime);
-
-    if (remaining <= 0) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      drawCircle(0);
-      alert("タイマー終了");
-    }
-  }, 1000);
-}
-
-// ストップ
-function stopTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-}
-
-// リセット
-function resetTimer() {
-  stopTimer();
-  remaining = totalTime;
-  drawCircle(1);
-}
-
-drawCircle(1); // 初期表示
-</script>
-
-</body>
-</html>
+// 時間を HH:MM:SS に
